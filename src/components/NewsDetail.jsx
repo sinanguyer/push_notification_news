@@ -1,27 +1,56 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, FileText, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { translateText } from '../services/translation';
 
 function NewsDetail({ article, onBack }) {
     const [lang, setLang] = useState('de'); // 'de', 'tr', 'en'
+    const [fullContent, setFullContent] = useState('');
     const [translatedTitle, setTranslatedTitle] = useState(article.title);
-    const [translatedContent, setTranslatedContent] = useState(article.content);
+    const [translatedContent, setTranslatedContent] = useState('');
     const [loading, setLoading] = useState(false);
+    const [loadingContent, setLoadingContent] = useState(false);
 
+    // Fetch Full Content on Mount
+    useEffect(() => {
+        const fetchContent = async () => {
+            if (!article.link) return;
+            setLoadingContent(true);
+            try {
+                const res = await fetch(`/api/fetch-content?url=${encodeURIComponent(article.link)}`);
+                const data = await res.json();
+                if (data.content) {
+                    setFullContent(data.content);
+                } else {
+                    setFullContent(article.content || ''); // Fallback
+                }
+            } catch (e) {
+                console.error("Failed to fetch content", e);
+                setFullContent(article.content || '');
+            } finally {
+                setLoadingContent(false);
+            }
+        };
+        fetchContent();
+    }, [article]);
+
+    // Handle Translation
     useEffect(() => {
         const translate = async () => {
             if (lang === 'de') {
                 setTranslatedTitle(article.title);
-                setTranslatedContent(article.content);
+                setTranslatedContent(fullContent || article.content);
                 return;
             }
 
             setLoading(true);
             try {
                 const tTitle = await translateText(article.title, lang);
-                const tContent = await translateText(article.content || '', lang);
+                // Translate the full content if available, otherwise the snippet
+                const textToTranslate = fullContent || article.content || '';
+                const tContent = await translateText(textToTranslate, lang);
+
                 setTranslatedTitle(tTitle);
                 setTranslatedContent(tContent);
             } catch (e) {
@@ -31,8 +60,11 @@ function NewsDetail({ article, onBack }) {
             }
         };
 
-        translate();
-    }, [lang, article]);
+        // waiting for full content to load before auto-translating if possible
+        if (!loadingContent) {
+            translate();
+        }
+    }, [lang, article, fullContent, loadingContent]);
 
     return (
         <div className="animate-in slide-in-from-right duration-300">
@@ -45,17 +77,17 @@ function NewsDetail({ article, onBack }) {
                 <div className="flex bg-slate-800 rounded-lg p-1 gap-1">
                     <button
                         onClick={() => setLang('de')}
-                        className={`px-3 py-1 text-sm rounded ${lang === 'de' ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-400'}`}>
+                        className={`px-3 py-1 text-sm rounded transition-colors ${lang === 'de' ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-400'}`}>
                         🇩🇪 DE
                     </button>
                     <button
                         onClick={() => setLang('tr')}
-                        className={`px-3 py-1 text-sm rounded ${lang === 'tr' ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-400'}`}>
+                        className={`px-3 py-1 text-sm rounded transition-colors ${lang === 'tr' ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-400'}`}>
                         🇹🇷 TR
                     </button>
                     <button
                         onClick={() => setLang('en')}
-                        className={`px-3 py-1 text-sm rounded ${lang === 'en' ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-400'}`}>
+                        className={`px-3 py-1 text-sm rounded transition-colors ${lang === 'en' ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-400'}`}>
                         🇬🇧 EN
                     </button>
                 </div>
@@ -63,8 +95,9 @@ function NewsDetail({ article, onBack }) {
 
             <article className="card mt-2 min-h-[60vh]">
                 {loading ? (
-                    <div className="flex justify-center p-10 animate-pulse text-slate-500">
-                        Translating...
+                    <div className="flex flex-col items-center justify-center p-10 text-slate-500 gap-2">
+                        <Loader2 className="animate-spin" />
+                        <span>Translating Article...</span>
                     </div>
                 ) : (
                     <>
@@ -78,11 +111,18 @@ function NewsDetail({ article, onBack }) {
                             {translatedTitle}
                         </h1>
 
-                        <div className="prose prose-invert prose-slate max-w-none text-slate-300 leading-relaxed space-y-4">
-                            {translatedContent ? (
-                                <p>{translatedContent}</p>
+                        <div className="prose prose-invert prose-slate max-w-none text-slate-300 leading-relaxed space-y-4 whitespace-pre-line">
+                            {loadingContent ? (
+                                <div className="flex items-center gap-2 text-slate-500 italic">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Fetching full content (PDF/Web)...
+                                </div>
                             ) : (
-                                <p className="italic text-slate-500">Keine Zusammenfassung verfügbar.</p>
+                                translatedContent ? (
+                                    <p>{translatedContent}</p>
+                                ) : (
+                                    <p className="italic text-slate-500">Keine Inhalte verfügbar.</p>
+                                )
                             )}
                         </div>
 

@@ -53,6 +53,30 @@ const SOURCES = [
         name: 'Landratsamt Unterallgäu',
         url: 'https://www.landratsamt-unterallgaeu.de/aktuelles/pressemitteilungen',
         type: 'html',
+    },
+    {
+        id: 'memmingen',
+        name: 'Stadt Memmingen',
+        url: 'https://www.memmingen.de/aktuelles-service/pressemitteilungen.html',
+        type: 'html',
+    },
+    {
+        id: 'mindelheim',
+        name: 'Stadt Mindelheim',
+        url: 'https://www.mindelheim.de/aktuelles',
+        type: 'html',
+    },
+    {
+        id: 'landsberg',
+        name: 'LRA Landsberg am Lech',
+        url: 'https://www.landkreis-landsberg.de/aktuelles/pressemitteilungen/',
+        type: 'html',
+    },
+    {
+        id: 'tagesschau',
+        name: 'Tagesschau (General)',
+        url: 'https://www.tagesschau.de/xml/rss2',
+        type: 'rss',
     }
 ];
 

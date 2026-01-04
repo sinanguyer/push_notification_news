@@ -46,6 +46,26 @@ app.post('/api/translate', express.json(), async (req, res) => {
     res.status(result.statusCode).send(result.body);
 });
 
+// Mimic Netlify Function for Content Fetching
+const { handler: contentHandler } = require('../netlify/functions/fetch-content.cjs');
+
+app.get('/api/fetch-content', async (req, res) => {
+    const event = {
+        httpMethod: 'GET',
+        queryStringParameters: req.query,
+    };
+
+    const result = await contentHandler(event, {});
+
+    if (result.headers) {
+        Object.entries(result.headers).forEach(([key, value]) => {
+            res.setHeader(key, value);
+        });
+    }
+
+    res.status(result.statusCode).send(result.body);
+});
+
 
 app.listen(PORT, () => {
     console.log(`Proxy server running at http://localhost:${PORT}`);
