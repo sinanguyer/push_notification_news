@@ -46,6 +46,12 @@ app.post('/api/translate', express.json(), async (req, res) => {
     res.status(result.statusCode).send(result.body);
 });
 
+// Mock Subscribe endpoint
+app.post('/api/subscribe', express.json(), (req, res) => {
+    console.log("Mock Subscribe:", req.body);
+    res.status(201).json({ message: "Subscribed successfully" });
+});
+
 // Mimic Netlify Function for Content Fetching
 const { handler: contentHandler } = require('../netlify/functions/fetch-content.cjs');
 

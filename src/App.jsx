@@ -27,6 +27,33 @@ function App() {
     getNewsData();
   }, []);
 
+  const subscribeUser = async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const register = await navigator.serviceWorker.register('/sw.js');
+        const subscription = await register.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+        });
+
+        // Send subscription to backend
+        await fetch('/api/subscribe', {
+          method: 'POST',
+          body: JSON.stringify(subscription),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        alert("Subscribed!");
+      } catch (e) {
+        console.error("Subscription failed", e);
+        alert("Subscription failed: " + e.message);
+      }
+    } else {
+      alert("Service Worker not supported");
+    }
+  };
+
   const filteredNews = category === 'all'
     ? news
     : news.filter(item => item.category === category);
@@ -38,6 +65,9 @@ function App() {
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
             News
           </h1>
+          <button onClick={subscribeUser} className="absolute right-4 top-4 text-xs bg-blue-600 px-2 py-1 rounded text-white">
+            🔔 Enable Push
+          </button>
 
           {/* Category Tabs - Only show on list view */}
           {!selectedNews && (
@@ -90,4 +120,23 @@ function App() {
   );
 }
 
+const PUBLIC_VAPID_KEY = 'BLwgy8VcZILQhZObCHC4Fa21bfF3K_oIiRek1o5JiJwNJG3Bzoii0ky8DcON7ugKOoChSgJaXnGPLgoJlPtu-lw';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 export default App;
+
+
