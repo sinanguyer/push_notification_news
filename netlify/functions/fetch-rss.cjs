@@ -10,73 +10,85 @@ const SOURCES = [
         name: 'ZBFS',
         url: 'https://www.zbfs.bayern.de/behoerde/presse/',
         type: 'html',
-        selector: '.content-main', // Approximation, to be refined
+        category: 'state',
+        selector: '.content-main',
     },
     {
         id: 'stmas',
         name: 'StMAS',
         url: 'https://www.stmas.bayern.de/presse/',
         type: 'html',
+        category: 'state',
     },
     {
         id: 'lfr',
         name: 'Landesfamilienrat',
-        url: 'https://landesfamilienrat.de/feed/', // Common WP Feed
+        url: 'https://landesfamilienrat.de/feed/',
         type: 'rss',
+        category: 'state',
     },
     {
         id: 'bamf',
         name: 'BAMF',
-        url: 'https://www.bamf.de/SiteGlobals/Functions/RSS/DE/Feed/RSS_Aktuelles.xml', // Deduced standard pattern
+        url: 'https://www.bamf.de/SiteGlobals/Functions/RSS/DE/Feed/RSS_Aktuelles.xml',
         type: 'rss',
+        category: 'state',
     },
     {
         id: 'stmi',
         name: 'StMI Bayern',
-        url: 'https://www.stmi.bayern.de/service/rss/pressemitteilungen.xml', // Common Bayern Portal pattern
+        url: 'https://www.stmi.bayern.de/service/rss/pressemitteilungen.xml',
         type: 'rss',
+        category: 'state',
     },
     {
         id: 'km',
         name: 'KM Bayern',
-        url: 'https://www.km.bayern.de/rss/pressemitteilungen.xml', // Common pattern
+        url: 'https://www.km.bayern.de/rss/pressemitteilungen.xml',
         type: 'rss',
+        category: 'state',
     },
     {
         id: 'vzb',
         name: 'Verbraucherzentrale Bayern',
         url: 'https://www.verbraucherzentrale-bayern.de/presse',
         type: 'html',
+        category: 'state',
     },
     {
         id: 'lra_ua',
         name: 'Landratsamt Unterallgäu',
         url: 'https://www.landratsamt-unterallgaeu.de/aktuelles/pressemitteilungen',
         type: 'html',
+        category: 'local',
     },
     {
         id: 'memmingen',
         name: 'Stadt Memmingen',
         url: 'https://www.memmingen.de/aktuelles-service/pressemitteilungen.html',
         type: 'html',
+        category: 'local',
     },
     {
         id: 'mindelheim',
         name: 'Stadt Mindelheim',
         url: 'https://www.mindelheim.de/aktuelles',
         type: 'html',
+        category: 'local',
     },
     {
         id: 'landsberg',
         name: 'LRA Landsberg am Lech',
         url: 'https://www.landkreis-landsberg.de/aktuelles/pressemitteilungen/',
         type: 'html',
+        category: 'local',
     },
     {
         id: 'tagesschau',
         name: 'Tagesschau (General)',
         url: 'https://www.tagesschau.de/xml/rss2',
         type: 'rss',
+        category: 'general',
     }
 ];
 
@@ -89,6 +101,7 @@ const fetchRSS = async (source) => {
             pubDate: item.pubDate,
             content: item.contentSnippet || item.content,
             source: source.name,
+            category: source.category,
             id: item.guid || item.link
         }));
     } catch (error) {
@@ -121,6 +134,7 @@ const fetchHTML = async (source) => {
                             pubDate: new Date().toISOString(), // No date in snippet
                             content: '',
                             source: source.name,
+                            category: source.category,
                             id: href
                         });
                     }
