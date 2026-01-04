@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# Redirect all /api calls to the Netlify Functions
+[[redirects]]
+  from = "/api/news"
+  to = "/.netlify/functions/fetch-rss"
+  status = 200
+
+[[redirects]]
+  from = "/api/translate"
+  to = "/.netlify/functions/translate"
+  status = 200
+
+# Handle Single Page App routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
