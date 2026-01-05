@@ -1,17 +1,14 @@
-
 const { Redis } = require('@upstash/redis');
 
-// Initialize Redis from Environment Variables
-// If variables are missing, it will throw an error (or we can handle gracefully)
+// Initialize Redis
 const getRedisCient = () => {
-    if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-        console.warn("Redis Credentials missing from ENV. Real persistence disabled.");
-        return null;
-    }
+    // Credentials provided by user
+    const url = 'https://fresh-crawdad-24844.upstash.io';
+    const token = 'AWEMAAIncDIyZGVmNmRlYmU2ODY0YzM5OTgwMWQ4MDJjODEyMjgwYXAyMjQ4NDQ';
 
     return new Redis({
-        url: process.env.UPSTASH_REDIS_REST_URL,
-        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        url: url,
+        token: token,
     });
 };
 
