@@ -1,15 +1,10 @@
 
 const webpush = require('web-push');
 
-// Public/Private Keys
-const publicVapidKey = 'BMIIyJPtS_eSVqtRjdJ8he71cZDEn9U-yATBwnYJbnhRlGDhswMLxb7dz0iHm6FCklRWiVEAdEgcntLGr2Utlio';
-const privateVapidKey = 'siqlnHYoU7M8Mq9DNnUUDTCwCtYMeH71GTaMkxAu7HE';
+const webpush = require('web-push');
+const { publicKey, privateKey, subject } = require('./vapid-config.cjs');
 
-webpush.setVapidDetails(
-    'mailto:test@test.com',
-    publicVapidKey,
-    privateVapidKey
-);
+webpush.setVapidDetails(subject, publicKey, privateKey);
 
 exports.handler = async (event, context) => {
     if (event.httpMethod !== 'POST') {

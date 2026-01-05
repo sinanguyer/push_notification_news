@@ -33,7 +33,12 @@ function App() {
       try {
         const register = await navigator.serviceWorker.register('/sw.js');
 
-        // Force unsubscribe to ensure VAPID keys match (Fix for "Test Sent but no Notification")
+        // Fetch the REAL key from backend to match 100%
+        const keyRes = await fetch('/api/get-public-key');
+        const keyData = await keyRes.json();
+        const serverKey = keyData.key;
+
+        // Unsubscribe existing to ensure clean slate with new key
         const existingSub = await register.pushManager.getSubscription();
         if (existingSub) {
           await existingSub.unsubscribe();
@@ -41,7 +46,7 @@ function App() {
 
         const subscription = await register.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+          applicationServerKey: urlBase64ToUint8Array(serverKey)
         });
 
         // Send subscription to backend
@@ -52,8 +57,8 @@ function App() {
             'Content-Type': 'application/json'
           }
         });
-        setSubscription(subscription); // Save for testing
-        alert("Subscribed!");
+        setSubscription(subscription);
+        alert("Subscribed! (Key synced)");
       } catch (e) {
         console.error("Subscription failed", e);
         alert("Subscription failed: " + e.message);
@@ -156,7 +161,8 @@ function App() {
   );
 }
 
-const PUBLIC_VAPID_KEY = 'BPmFvLBRVcLMLlu-6WLczxUbIDZ-FCD-HU4RVwD24gEzDNU225LlcLQjIHlgMEvc_mseZEZjltC5IkvxGb_0oI0';
+// Removed static key
+// const PUBLIC_VAPID_KEY = ...
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
