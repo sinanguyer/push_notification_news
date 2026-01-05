@@ -14,19 +14,30 @@ const KEYWORDS = [
 ];
 
 exports.handler = async (event, context) => {
-    // 1. Fetch News (Reuse fetch-rss logic or call the endpoint)
-    // Note: Calling the own endpoint might fail if auth/network issues, better to share logic. 
-    // For simplicity, we assume we fetch from the deployed endpoint or localhost.
+    // 1. Fetch Real News
+    const { fetchAllNews } = require('../utils/news-fetcher.cjs');
+    let allNews = [];
+    try {
+        allNews = await fetchAllNews();
+        console.log(`Scheduler fetched ${allNews.length} items`);
+    } catch (e) {
+        console.error("Failed to fetch news:", e);
+        return { statusCode: 500, body: "News fetch failed" };
+    }
 
-    // In a real scheduled function, we would require the logic directly.
-    // Here we will Mock the news fetching for the TEST requested by User.
+    // 2. Filter for Keywords (Last 24h only ideally, but for now just check latest)
+    // In real app, we check if item.pubDate > lastRunTime
 
-    // MOCK NEWS ITEM for "Road closure in Bad Wörishofen"
-    const newsItem = {
-        title: 'Achtung: Straßensperrung in Bad Wörishofen ab Montag',
-        content: 'Wegen Bauarbeiten ist die Hauptstraße gesperrt.',
-        url: 'https://bad-woerishofen.info/fake-news'
-    };
+    const importantNews = allNews.filter(item => {
+        return KEYWORDS.some(k => item.title.includes(k) || (item.content && item.content.includes(k)));
+    });
+
+    if (importantNews.length > 0) {
+        console.log(`Found ${importantNews.length} important items:`, importantNews.map(i => i.title));
+        // TODO: Retrieve Subscriptions from Redis and Send
+    } else {
+        console.log("No important news found this run.");
+    }
 
     // Filter Logic
     const isImportant = KEYWORDS.some(k => newsItem.title.includes(k) || newsItem.content.includes(k));
