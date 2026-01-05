@@ -33,11 +33,6 @@ function App() {
       try {
         const register = await navigator.serviceWorker.register('/sw.js');
 
-        // Fetch the REAL key from backend to match 100%
-        const keyRes = await fetch('/api/get-public-key');
-        const keyData = await keyRes.json();
-        const serverKey = keyData.key;
-
         // Unsubscribe existing to ensure clean slate with new key
         const existingSub = await register.pushManager.getSubscription();
         if (existingSub) {
@@ -46,7 +41,7 @@ function App() {
 
         const subscription = await register.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(serverKey)
+          applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
         });
 
         // Send subscription to backend
@@ -58,7 +53,7 @@ function App() {
           }
         });
         setSubscription(subscription);
-        alert("Subscribed! (Key synced)");
+        alert("Subscribed!");
       } catch (e) {
         console.error("Subscription failed", e);
         alert("Subscription failed: " + e.message);
