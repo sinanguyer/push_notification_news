@@ -19,6 +19,16 @@
   to = "/.netlify/functions/fetch-content"
   status = 200
 
+[[redirects]]
+  from = "/api/subscribe"
+  to = "/.netlify/functions/subscribe"
+  status = 200
+
+[[redirects]]
+  from = "/api/test-notification"
+  to = "/.netlify/functions/test-notification"
+  status = 200
+
 # Handle Single Page App routing
 [[redirects]]
   from = "/*"
