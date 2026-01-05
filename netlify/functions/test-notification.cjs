@@ -2,8 +2,8 @@
 const webpush = require('web-push');
 
 // Public/Private Keys (Same as Scheduler)
-const publicVapidKey = 'BDZqfkh_jE2X2e-j-lzcJcZ9JY2dd1s0kTX-STetwNKlFcs8yo2k1poeYUPbGMi-PSkDo3mMnphzYho7i5zIhv8';
-const privateVapidKey = 'KI8V_YKw-1hhRjTEWgi41ArX3wbQ1jeXEtltjiDHUOI';
+const publicVapidKey = 'BPmFvLBRVcLMLlu-6WLczxUbIDZ-FCD-HU4RVwD24gEzDNU225LlcLQjIHlgMEvc_mseZEZjltC5IkvxGb_0oI0';
+const privateVapidKey = '9-yySpkz7HrEI_uCDaxpz2KnTBcI1dqlsZ4mAHYMDDs';
 
 webpush.setVapidDetails(
     'mailto:test@test.com',
