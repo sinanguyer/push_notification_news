@@ -1,4 +1,3 @@
-
 const webpush = require('web-push');
 const fetch = require('node-fetch'); // or global fetch if avail
 
