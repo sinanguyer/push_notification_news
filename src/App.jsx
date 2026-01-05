@@ -11,6 +11,7 @@ function App() {
   const [selectedNews, setSelectedNews] = useState(null);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState('all'); // 'all', 'general', 'state', 'local'
+  const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
     const getNewsData = async () => {
@@ -44,6 +45,7 @@ function App() {
             'Content-Type': 'application/json'
           }
         });
+        setSubscription(subscription); // Save for testing
         alert("Subscribed!");
       } catch (e) {
         console.error("Subscription failed", e);
@@ -51,6 +53,23 @@ function App() {
       }
     } else {
       alert("Service Worker not supported");
+    }
+  };
+
+  const sendTestNotification = async () => {
+    if (!subscription) {
+      alert("Please enable push notifications first!");
+      return;
+    }
+    try {
+      await fetch('/api/test-notification', {
+        method: 'POST',
+        body: JSON.stringify(subscription),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      alert("Test sent! Check your notifications.");
+    } catch (e) {
+      alert("Failed to send test: " + e.message);
     }
   };
 
@@ -68,6 +87,11 @@ function App() {
           <button onClick={subscribeUser} className="absolute right-4 top-4 text-xs bg-blue-600 px-2 py-1 rounded text-white">
             🔔 Enable Push
           </button>
+          {subscription && (
+            <button onClick={sendTestNotification} className="absolute right-28 top-4 text-xs bg-green-600 px-2 py-1 rounded text-white mr-2">
+              🚀 Test Push
+            </button>
+          )}
 
           {/* Category Tabs - Only show on list view */}
           {!selectedNews && (
