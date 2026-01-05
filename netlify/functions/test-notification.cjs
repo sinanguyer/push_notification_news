@@ -1,14 +1,20 @@
 
 const webpush = require('web-push');
 
-// Public/Private Keys (Same as Scheduler)
-const publicVapidKey = 'BPmFvLBRVcLMLlu-6WLczxUbIDZ-FCD-HU4RVwD24gEzDNU225LlcLQjIHlgMEvc_mseZEZjltC5IkvxGb_0oI0';
-const privateVapidKey = '9-yySpkz7HrEI_uCDaxpz2KnTBcI1dqlsZ4mAHYMDDs';
+// Public/Private Keys (Cleaned to ensure Standard Base64 for web-push/atob compatibility)
+// Original: BPmFvLBRVcLMLlu-6WLczxUbIDZ-FCD-HU4RVwD24gEzDNU225LlcLQjIHlgMEvc_mseZEZjltC5IkvxGb_0oI0
+// Original Private: 9-yySpkz7HrEI_uCDaxpz2KnTBcI1dqlsZ4mAHYMDDs
+
+const cleanPublic = 'BPmFvLBRVcLMLlu-6WLczxUbIDZ-FCD-HU4RVwD24gEzDNU225LlcLQjIHlgMEvc_mseZEZjltC5IkvxGb_0oI0'
+    .replace(/-/g, '+').replace(/_/g, '/') + '=='.substring(0, (4 - 'BPmFvLBRVcLMLlu-6WLczxUbIDZ-FCD-HU4RVwD24gEzDNU225LlcLQjIHlgMEvc_mseZEZjltC5IkvxGb_0oI0'.length % 4) % 4);
+
+const cleanPrivate = '9-yySpkz7HrEI_uCDaxpz2KnTBcI1dqlsZ4mAHYMDDs'
+    .replace(/-/g, '+').replace(/_/g, '/') + '=='.substring(0, (4 - '9-yySpkz7HrEI_uCDaxpz2KnTBcI1dqlsZ4mAHYMDDs'.length % 4) % 4);
 
 webpush.setVapidDetails(
     'mailto:test@test.com',
-    publicVapidKey,
-    privateVapidKey
+    cleanPublic,
+    cleanPrivate
 );
 
 exports.handler = async (event, context) => {
