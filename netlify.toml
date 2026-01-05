@@ -1,7 +1,13 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  functions = "netlify/functions"
+[functions]
+  directory = "netlify/functions"
+  [functions.uPuschScheduler] # Note: Netlify matches filename. 
+  # Actually, simpler to just use netlify.toml scheduled functions syntax if using basic functions
+
+[functions."push-scheduler"]
+  schedule = "0 8,13,19 * * *" # 8am, 1pm, 7pm UTC
 
 # Redirect all /api calls to the Netlify Functions
 [[redirects]]

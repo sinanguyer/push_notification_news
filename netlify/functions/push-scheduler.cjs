@@ -25,39 +25,54 @@ exports.handler = async (event, context) => {
         return { statusCode: 500, body: "News fetch failed" };
     }
 
-    // 2. Filter for Keywords (Last 24h only ideally, but for now just check latest)
-    // In real app, we check if item.pubDate > lastRunTime
-
+    // 2. Filter Logic
     const importantNews = allNews.filter(item => {
         return KEYWORDS.some(k => item.title.includes(k) || (item.content && item.content.includes(k)));
     });
 
     if (importantNews.length > 0) {
-        console.log(`Found ${importantNews.length} important items:`, importantNews.map(i => i.title));
-        // TODO: Retrieve Subscriptions from Redis and Send
-    } else {
-        console.log("No important news found this run.");
-    }
+        console.log(`Found ${importantNews.length} important items. Preparing to send...`);
 
-    // Filter Logic
-    const isImportant = KEYWORDS.some(k => newsItem.title.includes(k) || newsItem.content.includes(k));
+        // 3. Fetch Subscriptions from Redis
+        const { getRedisCient } = require('../utils/redis.cjs');
+        const redis = getRedisCient();
 
-    if (isImportant) {
-        // Retrieve Subscriptions (Mocked for now)
-        // In real app: const subs = await redis.smembers('subs');
+        if (!redis) {
+            console.log("No Redis. Skipping send.");
+            return { statusCode: 200, body: "No DB configured" };
+        }
 
-        // Payload
+        const subsStrings = await redis.smembers('all_subs');
+        console.log(`Found ${subsStrings.length} subscribers.`);
+
+        // 4. Send Notifications
         const payload = JSON.stringify({
-            title: `New Alert: ${newsItem.title}`,
-            body: newsItem.content,
-            url: newsItem.url
+            title: `New Alert: ${importantNews[0].title}`,
+            body: importantNews[0].title, // Use title as body for brevity in push
+            url: '/' // TODO: Link to specific news item if possible
         });
 
-        // We can't actually SEND to a real subscription without a real endpoint.
-        // But we can log that we WOULD send.
-        console.log("Push Logic: Found important keynews:", newsItem.title);
+        const sendPromises = subsStrings.map(async (subStr) => {
+            let sub;
+            try {
+                sub = JSON.parse(subStr);
+                await webpush.sendNotification(sub, payload);
+                return { success: true };
+            } catch (err) {
+                if (err.statusCode === 410 || err.statusCode === 404) {
+                    console.log("Subscription expired/gone. Removing from DB.");
+                    await redis.srem('all_subs', subStr);
+                } else {
+                    console.error("Failed to send push:", err.message);
+                }
+                return { success: false };
+            }
+        });
 
-        // If we had a subscription passed in event (mock test), we could send.
+        await Promise.all(sendPromises);
+        console.log("Finished sending notifications.");
+    } else {
+        console.log("No important news found this run.");
     }
 
     return {
@@ -65,3 +80,4 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ message: "Scheduler ran", processed: true })
     };
 };
+```
