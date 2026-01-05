@@ -3,7 +3,9 @@ import { de } from 'date-fns/locale';
 
 const KEYWORDS = [
     'Familiengeld', 'Krippengeld', 'ZBFS', 'Kindergeld',
-    'Aufenthaltsgesetz', 'Einbürgerung', 'Miete', 'Nebenkosten', 'Schule', 'Visum'
+    'Aufenthaltsgesetz', 'Einbürgerung', 'Miete', 'Nebenkosten', 'Schule', 'Visum',
+    'Bad Wörishofen', 'Mindelheim', 'Straßensperrung', 'Ausländerbehörde',
+    'Müllabfuhr', 'Wasser', 'Kita', 'Kindergarten'
 ];
 
 function NewsList({ news, onArticleClick }) {

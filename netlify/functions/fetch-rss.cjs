@@ -89,6 +89,27 @@ const SOURCES = [
         url: 'https://www.tagesschau.de/xml/rss2',
         type: 'rss',
         category: 'general',
+    },
+    {
+        id: 'bad_woerishofen_news',
+        name: 'Stadt Bad Wörishofen (News)',
+        url: 'https://www.bad-woerishofen.info/aktuelles/nachrichten/',
+        type: 'html',
+        category: 'local',
+    },
+    {
+        id: 'bad_woerishofen_presse',
+        name: 'Stadt Bad Wörishofen (Presse)',
+        url: 'https://www.bad-woerishofen.de/service/presse',
+        type: 'html',
+        category: 'local',
+    },
+    {
+        id: 'lra_unterallgaeu_presse',
+        name: 'LRA Unterallgäu',
+        url: 'https://www.landratsamt-unterallgaeu.de/aktuelles/pressemitteilungen',
+        type: 'html',
+        category: 'local',
     }
 ];
 
@@ -140,9 +161,56 @@ const fetchHTML = async (source) => {
                     }
                 }
             });
+        } else if (source.id === 'bad_woerishofen_news') {
+            $('a[href*="/detail/"]').each((i, el) => {
+                const text = $(el).text().trim();
+                const href = $(el).attr('href');
+                if (text && href) {
+                    items.push({
+                        title: text.replace(/\s+/g, ' ').substring(0, 150),
+                        link: href.startsWith('http') ? href : `https://www.bad-woerishofen.info${href}`,
+                        pubDate: new Date().toISOString(),
+                        content: 'Bad Wörishofen News',
+                        source: source.name,
+                        category: source.category,
+                        id: href
+                    });
+                }
+            });
+        } else if (source.id === 'bad_woerishofen_presse') {
+            $('a[href*=".pdf"]').each((i, el) => {
+                const text = $(el).text().trim();
+                const href = $(el).attr('href');
+                if (text && href && !text.includes('Datenschutz')) {
+                    items.push({
+                        title: text,
+                        link: href.startsWith('http') ? href : `https://www.bad-woerishofen.de${href}`,
+                        pubDate: new Date().toISOString(),
+                        content: 'Pressemitteilung (PDF)',
+                        source: source.name,
+                        category: source.category,
+                        id: href
+                    });
+                }
+            });
+        } else if (source.id === 'lra_unterallgaeu_presse') {
+            $('h3 a').each((i, el) => {
+                const text = $(el).text().trim();
+                const href = $(el).attr('href');
+                if (text && href) {
+                    items.push({
+                        title: text,
+                        link: href.startsWith('http') ? href : `https://www.landratsamt-unterallgaeu.de${href}`,
+                        pubDate: new Date().toISOString(),
+                        content: 'Landratsamt Unterallgäu',
+                        source: source.name,
+                        category: source.category,
+                        id: href
+                    });
+                }
+            });
         } else {
-            // Fallback or other HTML sources
-            // We'll return empty for now to avoid garbage until we implement specific selectors
+            // Fallback for others
         }
 
         return items.slice(0, 10); // Limit
