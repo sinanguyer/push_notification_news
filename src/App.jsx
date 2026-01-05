@@ -161,8 +161,7 @@ function App() {
   );
 }
 
-// Removed static key
-// const PUBLIC_VAPID_KEY = ...
+const PUBLIC_VAPID_KEY = 'BFdE0U_Os0l3nRfYIOJtVl76V0B9sBSKKXTzfMcDEvfa06tL_w05jIJNCIbizsl6xOjS70VMP5Tpl-qw8l-06aA';
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);

@@ -29,10 +29,7 @@
   to = "/.netlify/functions/test-notification"
   status = 200
 
-[[redirects]]
-  from = "/api/get-public-key"
-  to = "/.netlify/functions/get-public-key"
-  status = 200
+
 
 # Handle Single Page App routing
 [[redirects]]

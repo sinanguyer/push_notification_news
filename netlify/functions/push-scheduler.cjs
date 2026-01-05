@@ -2,10 +2,12 @@
 const webpush = require('web-push');
 const fetch = require('node-fetch'); // or global fetch if avail
 
-// Public/Private Keys (Should be in ENV variables in production)
-const { publicKey, privateKey, subject } = require('./vapid-config.cjs');
-
-webpush.setVapidDetails(subject, publicKey, privateKey);
+// Public/Private Keys
+webpush.setVapidDetails(
+    'mailto:sinan@bavarianews.app',
+    'BFdE0U_Os0l3nRfYIOJtVl76V0B9sBSKKXTzfMcDEvfa06tL_w05jIJNCIbizsl6xOjS70VMP5Tpl-qw8l-06aA',
+    'ZMWyOS9phIv1EZ_7jffPb-5V7B4uU_fRI_nAXSu8Uo0'
+);
 
 const KEYWORDS = [
     'Bad Wörishofen', 'Mindelheim', 'Straßensperrung', 'Ausländerbehörde',
