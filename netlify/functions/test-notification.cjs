@@ -35,7 +35,14 @@ exports.handler = async (event, context) => {
         console.error("Error sending test push:", err);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: err.message })
+            body: JSON.stringify({
+                error: err.message,
+                details: {
+                    statusCode: err.statusCode,
+                    body: err.body,
+                    headers: err.headers
+                }
+            })
         };
     }
 };

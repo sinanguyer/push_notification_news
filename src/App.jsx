@@ -76,7 +76,8 @@ function App() {
       });
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || 'Server error');
+        const msg = errData.error + (errData.details ? ` (Code: ${errData.details.statusCode})` : '');
+        throw new Error(msg);
       }
       alert("Test sent! Check your notifications.");
     } catch (e) {
