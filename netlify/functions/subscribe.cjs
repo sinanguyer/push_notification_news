@@ -4,16 +4,32 @@ exports.handler = async (event, context) => {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const subscription = JSON.parse(event.body);
-    console.log("Accepted Subscription:", subscription);
+    try {
+        const subscription = JSON.parse(event.body);
 
-    // TODO: In a real app, save 'subscription' to Upstash Redis or Database
-    // const redis = new Redis(process.env.REDIS_URL);
-    // await redis.set('sub:' + subscription.endpoint, JSON.stringify(subscription));
+        // Validation
+        if (!subscription.endpoint) {
+            return { statusCode: 400, body: "Invalid subscription" };
+        }
 
-    // For now, we mock success
-    return {
-        statusCode: 201,
-        body: JSON.stringify({ message: "Subscribed successfully" })
-    };
+        const { getRedisCient } = require('../utils/redis.cjs');
+        const redis = getRedisCient();
+
+        if (redis) {
+            // Use SADD (Set Add) to avoid duplicates
+            // We store the whole JSON string
+            await redis.sadd('all_subs', JSON.stringify(subscription));
+            console.log("Saved subscription to Redis:", subscription.endpoint);
+        } else {
+            console.log("Redis not configured. Subscription Mocked.");
+        }
+
+        return {
+            statusCode: 201,
+            body: JSON.stringify({ message: "Subscribed successfully" })
+        };
+    } catch (err) {
+        console.error("Subscription error:", err);
+        return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    }
 };
