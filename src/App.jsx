@@ -10,6 +10,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState(null);
   const [error, setError] = useState(null);
+  // Public/Private Keys (Should be in ENV variables in production)
+  const publicVapidKey = 'BDZqfkh_jE2X2e-j-lzcJcZ9JY2dd1s0kTX-STetwNKlFcs8yo2k1poeYUPbGMi-PSkDo3mMnphzYho7i5zIhv8';
+  const privateVapidKey = 'KI8V_YKw-1hhRjTEWgi41ArX3wbQ1jeXEtltjiDHUOI';
   const [category, setCategory] = useState('all'); // 'all', 'general', 'state', 'local'
   const [subscription, setSubscription] = useState(null);
 
@@ -34,7 +37,7 @@ function App() {
         const register = await navigator.serviceWorker.register('/sw.js');
         const subscription = await register.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
         });
 
         // Send subscription to backend
@@ -148,7 +151,7 @@ function App() {
   );
 }
 
-const PUBLIC_VAPID_KEY = 'BLwgy8VcZILQhZObCHC4Fa21bfF3K_oIiRek1o5JiJwNJG3Bzoii0ky8DcON7ugKOoChSgJaXnGPLgoJlPtu-lw';
+const PUBLIC_VAPID_KEY = 'BDZqfkh_jE2X2e-j-lzcJcZ9JY2dd1s0kTX-STetwNKlFcs8yo2k1poeYUPbGMi-PSkDo3mMnphzYho7i5zIhv8';
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
