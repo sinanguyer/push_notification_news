@@ -52,12 +52,21 @@ app.post('/api/subscribe', express.json(), (req, res) => {
     res.status(201).json({ message: "Subscribed successfully" });
 });
 
-// Real-ish Test Notification (Uses web-push if keys valid, else mock)
+// Real-ish Test Notification (Uses web-push if keys valid)
+const { handler: testHandler } = require('../netlify/functions/test-notification.cjs');
+
 app.post('/api/test-notification', express.json(), async (req, res) => {
-    console.log("Sending Test Notification to:", req.body);
-    // In local dev without real VAPID setup this might fail, but let's try or mock
-    // For now we mock success for the UI feedback
-    res.status(200).json({ message: "Test notification sent!" });
+    console.log("Proxy: Delegating to test-notification.cjs");
+    try {
+        const result = await testHandler({
+            httpMethod: 'POST',
+            body: JSON.stringify(req.body)
+        }, {});
+        res.status(result.statusCode).send(result.body);
+    } catch (e) {
+        console.error("Proxy Error:", e);
+        res.status(500).json({ error: e.message });
+    }
 });
 
 // Mimic Netlify Function for Content Fetching

@@ -62,11 +62,15 @@ function App() {
       return;
     }
     try {
-      await fetch('/api/test-notification', {
+      const res = await fetch('/api/test-notification', {
         method: 'POST',
         body: JSON.stringify(subscription),
         headers: { 'Content-Type': 'application/json' }
       });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Server error');
+      }
       alert("Test sent! Check your notifications.");
     } catch (e) {
       alert("Failed to send test: " + e.message);
