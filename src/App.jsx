@@ -35,6 +35,13 @@ function App() {
     if ('serviceWorker' in navigator) {
       try {
         const register = await navigator.serviceWorker.register('/sw.js');
+
+        // Force unsubscribe to ensure VAPID keys match (Fix for "Test Sent but no Notification")
+        const existingSub = await register.pushManager.getSubscription();
+        if (existingSub) {
+          await existingSub.unsubscribe();
+        }
+
         const subscription = await register.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
